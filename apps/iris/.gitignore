@@ -1,0 +1,9 @@
+node_modules/
+.npm-cache/
+data/
+.env
+npm-debug.log*
+# Third-party design source and local-only QA composites
+design-reference/gradient-ui-kit.jpg
+design-reference/qa-comparison-*.jpg
+design-reference/iris-login.png

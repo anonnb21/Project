@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0c111d">
+  <title>IRIS — Integrated Red Ant Colony Information System</title>
+  <link rel="stylesheet" href="/vendor/phosphor/style.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <main id="auth-view" class="auth-shell hidden">
+    <section class="brand-panel">
+      <a class="brand" href="/"><span class="logo">I</span> IRIS</a>
+      <div class="brand-copy">
+        <p class="eyebrow">Integrated Red Ant Colony Information System</p>
+        <h1>Ideas become clearer when they connect.</h1>
+        <p>Build living mind maps, invite your team, and keep every thought in sync.</p>
+      </div>
+      <div class="colony-mark" aria-hidden="true"><span>IRIS</span></div>
+      <p class="small">Private by default · OPML compatible · Self-hosted</p>
+    </section>
+    <section class="auth-panel">
+      <form id="auth-form" class="auth-card">
+        <p class="eyebrow">Welcome to IRIS</p>
+        <h2 id="auth-title">Sign in to your workspace</h2>
+        <p id="auth-subtitle" class="muted">Integrated Red Ant Colony Information System</p>
+        <label id="name-field" class="hidden">Your name<input name="displayName" autocomplete="name" placeholder="Ada Lovelace"></label>
+        <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@company.com"></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" minlength="10" required placeholder="At least 10 characters"></label>
+        <p id="auth-error" class="form-error"></p>
+        <button class="primary wide" type="submit"><span id="auth-submit">Sign in</span><i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+        <p id="auth-toggle-row" class="center muted">New to IRIS? <button id="auth-toggle" class="link" type="button">Create an account</button></p>
+      </form>
+    </section>
+  </main>
+
+  <main id="dashboard-view" class="app-shell hidden">
+    <aside class="sidebar">
+      <a class="brand" href="/"><span class="logo">I</span> IRIS</a>
+      <nav>
+        <button class="nav-item active"><i class="ph ph-squares-four"></i> All maps</button>
+        <button class="nav-item" disabled><i class="ph ph-star"></i> Favorites <em>Soon</em></button>
+        <button class="nav-item" disabled><i class="ph ph-users-three"></i> Shared with me</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-chip"><span id="user-avatar" class="avatar"></span><div><strong id="user-name"></strong><small id="user-email"></small></div></div>
+        <button id="logout-btn" class="icon-btn" title="Sign out" aria-label="Sign out"><i class="ph ph-sign-out"></i></button>
+      </div>
+    </aside>
+    <section class="dashboard">
+      <header class="dashboard-header">
+        <div><p class="eyebrow">Your workspace</p><h1>Mind maps</h1></div>
+        <div class="actions"><label class="import-btn"><i class="ph ph-upload-simple"></i> Import OPML<input id="import-input" type="file" accept=".opml,.xml,text/xml"></label><button id="new-map-btn" class="primary"><i class="ph ph-plus"></i> New mind map</button></div>
+      </header>
+      <div class="toolbar"><div class="search"><i class="ph ph-magnifying-glass"></i><input id="search-input" placeholder="Search your maps"></div><span id="map-count" class="muted"></span></div>
+      <section id="map-grid" class="map-grid"></section>
+      <section id="empty-state" class="empty hidden"><div class="empty-art"><i class="ph ph-sparkle"></i></div><h2>Start with one good question</h2><p>Your maps will live here. Create one and invite your team when it is ready.</p><button class="primary" data-new-map><i class="ph ph-plus"></i> Create your first map</button></section>
+    </section>
+  </main>
+
+  <main id="editor-view" class="editor-shell hidden">
+    <header class="editor-topbar">
+      <a class="brand compact" href="/"><span class="logo">I</span></a>
+      <button id="back-btn" class="icon-btn" title="Back to maps" aria-label="Back to maps"><i class="ph ph-arrow-left"></i></button>
+      <input id="map-title" class="title-input" maxlength="120" aria-label="Mind map title">
+      <div id="save-state" class="save-state" role="status">Saved</div>
+      <div class="view-switch" role="group" aria-label="Mind map view">
+        <button id="canvas-view-btn" class="active" aria-pressed="true"><i class="ph ph-tree-structure"></i><span>Canvas</span></button>
+        <button id="table-view-btn" aria-pressed="false"><i class="ph ph-table"></i><span>Table</span></button>
+      </div>
+      <div class="spacer"></div>
+      <button id="undo-btn" class="icon-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled><i class="ph ph-arrow-u-up-left"></i></button>
+      <button id="redo-btn" class="icon-btn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled><i class="ph ph-arrow-u-up-right"></i></button>
+      <button id="shortcuts-btn" class="icon-btn" title="Keyboard shortcuts" aria-label="Keyboard shortcuts"><i class="ph ph-keyboard"></i></button>
+      <div id="presence" class="presence"><span></span><span id="presence-label">1 online</span></div>
+      <button id="export-btn" class="secondary"><i class="ph ph-download-simple"></i> OPML</button>
+      <button id="share-btn" class="primary"><i class="ph ph-share-network"></i> Share</button>
+    </header>
+    <section id="conflict-bar" class="conflict-bar hidden" role="alert">
+      <div><strong>This map changed elsewhere.</strong><span id="conflict-message">Review which version to keep.</span></div>
+      <button id="use-latest-btn" class="secondary">Use latest</button>
+      <button id="keep-draft-btn" class="primary">Keep my draft</button>
+    </section>
+    <section class="editor-body">
+      <aside class="node-tools">
+        <p class="tool-label">Build</p>
+        <button id="add-child-btn" title="Add child (Tab)"><i class="ph ph-tree-structure"></i> Child<kbd>Tab</kbd></button>
+        <button id="add-sibling-btn" title="Add sibling (Enter)"><i class="ph ph-list-plus"></i> Sibling<kbd>Enter</kbd></button>
+        <button id="collapse-node-btn" title="Collapse or expand branch"><i class="ph ph-arrows-in-line-horizontal"></i> Collapse<kbd>Space</kbd></button>
+        <button id="delete-node-btn" class="danger" title="Delete node"><i class="ph ph-trash"></i> Delete<kbd>Del</kbd></button>
+        <div class="tool-rule"></div>
+        <p class="tool-label">Drag a shape</p>
+        <div id="shape-palette" class="shape-palette" aria-label="Add a shaped topic">
+          <button data-shape="rounded" title="Add rounded topic"><span class="shape-swatch rounded"></span><span>Rounded</span></button>
+          <button data-shape="pill" title="Add pill topic"><span class="shape-swatch pill"></span><span>Pill</span></button>
+          <button data-shape="rectangle" title="Add rectangle topic"><span class="shape-swatch rectangle"></span><span>Rectangle</span></button>
+          <button data-shape="plain" title="Add plain topic"><span class="shape-swatch plain"></span><span>Plain</span></button>
+        </div>
+        <div class="tool-rule"></div>
+        <p class="tool-label">Navigate</p>
+        <button id="zoom-in-btn"><i class="ph ph-magnifying-glass-plus"></i> Zoom in</button>
+        <button id="zoom-out-btn"><i class="ph ph-magnifying-glass-minus"></i> Zoom out</button>
+        <button id="fit-selection-btn"><i class="ph ph-focus"></i> Fit selection</button>
+        <button id="fit-btn"><i class="ph ph-corners-out"></i> Fit map</button>
+      </aside>
+      <section id="canvas-panel" class="canvas-panel">
+        <div id="canvas" class="canvas" tabindex="0" aria-label="Editable mind map canvas">
+          <svg id="mindmap-svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="rootGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff685d"></stop>
+              <stop offset="48%" stop-color="#dc2744"></stop>
+              <stop offset="100%" stop-color="#861427"></stop>
+            </linearGradient>
+          </defs>
+            <g id="edge-viewport"><g id="edges"></g></g>
+          </svg>
+          <div id="node-viewport" role="tree" aria-label="Mind map topics"></div>
+          <div id="drop-marker" class="drop-marker hidden" aria-hidden="true"></div>
+          <div class="canvas-hint">Double-click to edit · Drag topics to reorganize · F2 to rename</div>
+          <div id="zoom-level" class="zoom-level">100%</div>
+          <div id="read-only" class="readonly hidden">View only</div>
+        </div>
+      </section>
+      <section id="table-panel" class="table-panel hidden" aria-labelledby="table-heading">
+        <header><div><p class="eyebrow">Relationship view</p><h2 id="table-heading">Topic hierarchy</h2></div><p class="muted">Edit text, shape, or parent. Changes appear on the canvas immediately.</p></header>
+        <div class="table-wrap">
+          <table id="relation-table" role="treegrid" aria-label="Mind map relationship table">
+            <thead><tr><th>Topic</th><th>Parent</th><th>Shape</th><th>Depth</th><th>Children</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody id="relation-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+    <div id="editor-status" class="sr-only" role="status" aria-live="polite"></div>
+  </main>
+
+  <dialog id="new-map-dialog">
+    <form method="dialog" id="new-map-form" class="dialog-card">
+      <button class="dialog-close" value="cancel" aria-label="Close"><i class="ph ph-x"></i></button>
+      <p class="eyebrow">New canvas</p><h2>What are we mapping?</h2>
+      <label>Mind map name<input name="title" required maxlength="120" autofocus placeholder="e.g. Q4 product strategy"></label>
+      <div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary">Create map</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="share-dialog">
+    <div class="dialog-card share-card">
+      <button id="share-close" class="dialog-close" aria-label="Close"><i class="ph ph-x"></i></button>
+      <p class="eyebrow">Access control</p><h2>Share “<span id="share-map-name"></span>”</h2>
+      <p class="muted">Invite existing IRIS users by email.</p>
+      <form id="share-form" class="invite-row"><input name="email" type="email" required placeholder="teammate@company.com"><select name="role"><option value="editor">Can edit</option><option value="viewer">Can view</option></select><button class="primary">Invite</button></form>
+      <p id="share-error" class="form-error"></p>
+      <div class="tool-rule"></div><h3>People with access</h3><div id="member-list" class="member-list"></div>
+    </div>
+  </dialog>
+  <dialog id="shortcuts-dialog">
+    <div class="dialog-card shortcuts-card">
+      <button id="shortcuts-close" class="dialog-close" aria-label="Close"><i class="ph ph-x"></i></button>
+      <p class="eyebrow">Keyboard guide</p><h2>Move at the speed of thought</h2>
+      <dl class="shortcut-list">
+        <div><dt><kbd>Tab</kbd></dt><dd>Add child topic</dd></div><div><dt><kbd>Enter</kbd></dt><dd>Add sibling topic</dd></div>
+        <div><dt><kbd>F2</kbd></dt><dd>Edit selected topic</dd></div><div><dt><kbd>Shift</kbd> + <kbd>Enter</kbd></dt><dd>Line break while editing</dd></div>
+        <div><dt><kbd>Arrow keys</kbd></dt><dd>Navigate topics or table rows</dd></div><div><dt><kbd>Space</kbd></dt><dd>Collapse or expand branch</dd></div>
+        <div><dt><kbd>Ctrl</kbd> + <kbd>Z</kbd></dt><dd>Undo</dd></div><div><dt><kbd>Delete</kbd></dt><dd>Delete selected branch</dd></div>
+      </dl>
+    </div>
+  </dialog>
+  <script src="/vendor/flextree/d3-flextree.min.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
