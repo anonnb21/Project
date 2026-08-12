@@ -17,6 +17,7 @@ Implemented editor behavior:
 - Topic format panel for shape, topic/text colors, text size, emphasis, and alignment; child creation inherits parent colors.
 - Logic Tree, Spider Diagram, Top-down Tree, and Org Chart layouts.
 - Map-level connector settings: Smart, Straight, Curved, and Elbow 90-degree paths; optional arrowheads; three line weights; branch-following or custom colors.
+- Workspace version badge backed by the server revision, including a draft state while local changes are waiting for autosave.
 - OPML round trips for supported IRIS metadata, with safe defaults for legacy or unknown fields.
 
 ## Connector decisions

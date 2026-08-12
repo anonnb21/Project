@@ -39,6 +39,7 @@ A map starts private. Its owner may add an existing account as an editor or view
 - Use the right Format sidebar to change shape, topic/text colors, text size, emphasis, and alignment. Newly created child topics inherit their parent colors.
 - Switch the same hierarchy between Logic Tree, Spider Diagram, Top-down Tree, and Org Chart layouts. Legacy radial maps open automatically as Spider Diagrams.
 - Customize map connectors with Smart, Straight, Curved, or Elbow 90-degree paths, optional arrowheads, three thicknesses, and branch-following or custom colors.
+- See the current server revision in the workspace as `Map vN`; unsaved local work is marked as a draft until autosave advances the version.
 - Use `Tab` for a child, `Enter` for a sibling, arrow keys to navigate, and `Delete` to remove a branch.
 - Undo and redo with `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z`. Fit-map and fit-selection controls keep large maps manageable.
 

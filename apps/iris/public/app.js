@@ -146,6 +146,18 @@ $('#back-btn').addEventListener('click', () => { history.replaceState(null, '', 
 $('#map-title').addEventListener('input', () => { state.map.title = $('#map-title').value; queueSave(); });
 $('#export-btn').addEventListener('click', () => { location.href = `/api/mindmaps/${state.map.id}/export.opml`; });
 
+function updateVersionIndicator() {
+  if (!state.map) return;
+  const version = Number.isInteger(state.map.version) ? state.map.version : 1;
+  const pending = Boolean(state.dirty || state.saving || state.pendingOps.length);
+  $('#map-version-number').textContent = version;
+  $('#map-version-draft').classList.toggle('hidden', !pending);
+  $('#map-version').classList.toggle('pending', pending);
+  const description = `Mind map revision ${version}${pending ? ', local draft pending' : ''}; document schema ${state.map.document?.schemaVersion || 1}`;
+  $('#map-version').setAttribute('aria-label', description);
+  $('#map-version').title = description;
+}
+
 function execute(operation, { record = true, announceText = '', preserveSelection = false, selectIds = null, focusSelection = false } = {}) {
   if (!canEdit()) return null;
   try {
@@ -420,6 +432,7 @@ function renderEditor() {
   if (!findNode(state.map.document, state.selected)) state.selected = validSelection.at(-1) || state.map.document.id;
   if (!validSelection.length) validSelection.push(state.selected);
   state.selectedIds = new Set(validSelection);
+  updateVersionIndicator();
   if (state.view === 'canvas') renderCanvas();
   renderTable(); updateSelectionControls();
 }
@@ -868,6 +881,7 @@ function handleTableKey(event, rows, index) {
 function queueSave() {
   if (!canEdit()) return; state.dirty = true; clearTimeout(state.saveTimer);
   $('#save-state').textContent = 'Unsaved'; $('#save-state').className = 'save-state saving';
+  updateVersionIndicator();
   state.saveTimer = setTimeout(save, 650);
 }
 async function save() {
@@ -877,11 +891,11 @@ async function save() {
   try {
     const result = await api(`/api/mindmaps/${snapshotId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: state.map.title, document: state.map.document, version: state.map.version }) });
     if (state.map?.id !== snapshotId) return;
-    state.map.version = result.version; state.pendingOps.splice(0, operationCount); $('#save-state').textContent = 'Saved'; $('#save-state').className = 'save-state'; announce('Mind map saved');
+    state.map.version = result.version; state.pendingOps.splice(0, operationCount); $('#save-state').textContent = 'Saved'; $('#save-state').className = 'save-state'; updateVersionIndicator(); announce(`Mind map version ${result.version} saved`);
   } catch (error) {
     if (error.status === 409 && error.data.mindmap) handleIncomingVersion(error.data.mindmap, 'A collaborator saved a newer version');
     else { state.dirty = true; $('#save-state').textContent = 'Save failed'; $('#save-state').className = 'save-state conflict'; toast(error.message); }
-  } finally { state.saving = false; if (state.dirty && !state.conflict) queueSave(); }
+  } finally { state.saving = false; updateVersionIndicator(); if (state.dirty && !state.conflict) queueSave(); }
 }
 function handleIncomingVersion(incoming, message) {
   const latest = { ...incoming, document: normalizeDocument(incoming.document) };
