@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,9 @@ import { db, permissionFor } from './db.js';
 import { endSession, requireUser, startSession, userFromRequest } from './auth.js';
 import { createDocument, newId, validateTree } from './tree.js';
 import { fromOpml, toOpml } from './opml.js';
+
+const packageMetadata = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const moduleVersion = String(packageMetadata.version || '0.0.0');
 
 const app = express();
 if (config.trustProxy) app.set('trust proxy', config.trustProxy);
@@ -43,6 +47,7 @@ app.get('/healthz', (_req, res) => {
   }
 });
 
+app.get('/api/meta', (_req, res) => res.json({ mindmapModuleVersion: moduleVersion }));
 app.get('/api/auth/config', (_req, res) => res.json({ allowRegistration: config.allowRegistration }));
 app.post('/api/auth/register', async (req, res) => {
   if (!config.allowRegistration) return res.status(403).json({ error: 'Registration is disabled' });

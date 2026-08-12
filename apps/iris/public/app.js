@@ -20,6 +20,7 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
 const views = { auth: $('#auth-view'), dashboard: $('#dashboard-view'), editor: $('#editor-view') };
 const state = {
   user: null, maps: [], map: null, register: false, selected: null, view: 'canvas',
+  moduleVersion: null,
   scale: 1, panX: 0, panY: 0, socket: null, saveTimer: null, dirty: false, saving: false,
   history: [], redo: [], pendingOps: [], conflict: null, layout: new Map(), bounds: null,
   renderQueued: false, rendering: false, renderedSizes: new Map(), editAfterRender: null,
@@ -59,6 +60,16 @@ function newNode(title = 'New idea', shape = 'rounded', formatSource = null) {
 }
 
 async function bootstrap() {
+  try {
+    const metadata = await api('/api/meta');
+    state.moduleVersion = metadata.mindmapModuleVersion;
+    const label = `v${state.moduleVersion}`;
+    $('#module-version-number').textContent = label;
+    $('#module-version').setAttribute('aria-label', `Mind-map module version ${state.moduleVersion}`);
+    $('#module-version').title = `IRIS mind-map module version ${state.moduleVersion}`;
+  } catch {
+    $('#module-version').classList.add('hidden');
+  }
   try { state.user = (await api('/api/auth/me')).user; await showDashboard(); } catch { showAuth(); }
 }
 function showAuth() {
