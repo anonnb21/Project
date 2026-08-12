@@ -75,6 +75,7 @@
       <button id="undo-btn" class="icon-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled><i class="ph ph-arrow-u-up-left"></i></button>
       <button id="redo-btn" class="icon-btn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled><i class="ph ph-arrow-u-up-right"></i></button>
       <button id="shortcuts-btn" class="icon-btn" title="Keyboard shortcuts" aria-label="Keyboard shortcuts"><i class="ph ph-keyboard"></i></button>
+      <button id="format-toggle-btn" class="icon-btn" title="Topic format" aria-label="Open topic format"><i class="ph ph-paint-brush"></i></button>
       <div id="presence" class="presence"><span></span><span id="presence-label">1 online</span></div>
       <button id="export-btn" class="secondary"><i class="ph ph-download-simple"></i> OPML</button>
       <button id="share-btn" class="primary"><i class="ph ph-share-network"></i> Share</button>
@@ -85,10 +86,23 @@
       <button id="keep-draft-btn" class="primary">Keep my draft</button>
     </section>
     <section class="editor-body">
+      <div id="selection-toolbar" class="selection-toolbar hidden" role="toolbar" aria-label="Bulk topic actions">
+        <strong id="selection-count">2 selected</strong>
+        <label>Shape<select id="bulk-shape"><option value="">Choose…</option><option value="rounded">Rounded</option><option value="pill">Pill</option><option value="rectangle">Rectangle</option><option value="plain">Plain</option></select></label>
+        <button id="bulk-copy-btn" title="Copy selected branches"><i class="ph ph-copy"></i><span>Copy</span></button>
+        <button id="bulk-duplicate-btn" title="Duplicate selected branches"><i class="ph ph-copy-simple"></i><span>Duplicate</span></button>
+        <button id="bulk-delete-btn" class="danger" title="Delete selected branches"><i class="ph ph-trash"></i><span>Delete</span></button>
+        <button id="clear-selection-btn" class="icon-btn" title="Keep only the active topic" aria-label="Clear multi-selection"><i class="ph ph-x"></i></button>
+      </div>
       <aside class="node-tools">
         <p class="tool-label">Build</p>
         <button id="add-child-btn" title="Add child (Tab)"><i class="ph ph-tree-structure"></i> Child<kbd>Tab</kbd></button>
         <button id="add-sibling-btn" title="Add sibling (Enter)"><i class="ph ph-list-plus"></i> Sibling<kbd>Enter</kbd></button>
+        <button id="duplicate-node-btn" title="Duplicate selected branches (Ctrl+D)"><i class="ph ph-copy-simple"></i> Duplicate<kbd>⌘D</kbd></button>
+        <button id="copy-node-btn" title="Copy selected branches as an outline (Ctrl+C)"><i class="ph ph-copy"></i> Copy outline<kbd>⌘C</kbd></button>
+        <button id="paste-outline-btn" title="Paste an indented outline below the selected topic"><i class="ph ph-clipboard-text"></i> Paste outline</button>
+        <button id="select-branch-btn" title="Select this topic and its descendants"><i class="ph ph-selection-all"></i> Select branch</button>
+        <button id="promote-node-btn" title="Promote topic one level (Shift+Tab)"><i class="ph ph-arrow-bend-up-left"></i> Promote<kbd>⇧Tab</kbd></button>
         <button id="collapse-node-btn" title="Collapse or expand branch"><i class="ph ph-arrows-in-line-horizontal"></i> Collapse<kbd>Space</kbd></button>
         <button id="delete-node-btn" class="danger" title="Delete node"><i class="ph ph-trash"></i> Delete<kbd>Del</kbd></button>
         <div class="tool-rule"></div>
@@ -101,10 +115,18 @@
         </div>
         <div class="tool-rule"></div>
         <p class="tool-label">Navigate</p>
+        <button id="pan-tool-btn" class="active-tool" title="Pan canvas (H)"><i class="ph ph-hand"></i> Pan canvas<kbd>H</kbd></button>
+        <button id="select-tool-btn" title="Select topics (V)"><i class="ph ph-cursor-click"></i> Select topics<kbd>V</kbd></button>
         <button id="zoom-in-btn"><i class="ph ph-magnifying-glass-plus"></i> Zoom in</button>
         <button id="zoom-out-btn"><i class="ph ph-magnifying-glass-minus"></i> Zoom out</button>
         <button id="fit-selection-btn"><i class="ph ph-focus"></i> Fit selection</button>
         <button id="fit-btn"><i class="ph ph-corners-out"></i> Fit map</button>
+        <div class="tool-rule"></div>
+        <p class="tool-label">Mind map view</p>
+        <button id="layout-right-btn" data-layout="right" class="active-tool" aria-pressed="true" title="Branches flow to the right"><i class="ph ph-tree-structure"></i> Logic tree</button>
+        <button id="layout-spider-btn" data-layout="spider" aria-pressed="false" title="Branches radiate from a central topic"><i class="ph ph-circles-three-plus"></i> Spider diagram</button>
+        <button id="layout-top-down-btn" data-layout="top-down" aria-pressed="false" title="Branches flow from top to bottom"><i class="ph ph-flow-arrow"></i> Top-down tree</button>
+        <button id="layout-org-chart-btn" data-layout="org-chart" aria-pressed="false" title="Compact hierarchy with aligned levels"><i class="ph ph-buildings"></i> Org chart</button>
       </aside>
       <section id="canvas-panel" class="canvas-panel">
         <div id="canvas" class="canvas" tabindex="0" aria-label="Editable mind map canvas">
@@ -115,12 +137,14 @@
               <stop offset="48%" stop-color="#dc2744"></stop>
               <stop offset="100%" stop-color="#861427"></stop>
             </linearGradient>
+            <marker id="connector-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 8 4 L 0 8 z" fill="context-stroke"></path></marker>
           </defs>
             <g id="edge-viewport"><g id="edges"></g></g>
           </svg>
-          <div id="node-viewport" role="tree" aria-label="Mind map topics"></div>
+          <div id="node-viewport" role="tree" aria-multiselectable="true" aria-label="Mind map topics"></div>
           <div id="drop-marker" class="drop-marker hidden" aria-hidden="true"></div>
-          <div class="canvas-hint">Double-click to edit · Drag topics to reorganize · F2 to rename</div>
+          <div id="selection-box" class="selection-box hidden" aria-hidden="true"></div>
+          <div class="canvas-hint">Double-click to edit · Ctrl-click for multi-select · Shift-drag to select an area</div>
           <div id="zoom-level" class="zoom-level">100%</div>
           <div id="read-only" class="readonly hidden">View only</div>
         </div>
@@ -128,12 +152,42 @@
       <section id="table-panel" class="table-panel hidden" aria-labelledby="table-heading">
         <header><div><p class="eyebrow">Relationship view</p><h2 id="table-heading">Topic hierarchy</h2></div><p class="muted">Edit text, shape, or parent. Changes appear on the canvas immediately.</p></header>
         <div class="table-wrap">
-          <table id="relation-table" role="treegrid" aria-label="Mind map relationship table">
+          <table id="relation-table" role="treegrid" aria-multiselectable="true" aria-label="Mind map relationship table">
             <thead><tr><th>Topic</th><th>Parent</th><th>Shape</th><th>Depth</th><th>Children</th><th><span class="sr-only">Actions</span></th></tr></thead>
             <tbody id="relation-body"></tbody>
           </table>
         </div>
       </section>
+      <aside id="format-panel" class="format-panel" aria-labelledby="format-heading">
+        <header><div><p class="tool-label">Selected topic</p><h2 id="format-heading">Format</h2></div><button id="format-close-btn" class="icon-btn" aria-label="Close topic format"><i class="ph ph-x"></i></button></header>
+        <p id="format-selection-label" class="muted">1 topic selected</p>
+        <label>Shape<select id="format-shape"><option value="rounded">Rounded</option><option value="pill">Pill</option><option value="rectangle">Rectangle</option><option value="plain">Plain</option></select></label>
+        <div class="format-color-row"><label>Topic color<input id="format-color" type="color" value="#ffffff"></label><label>Text color<input id="format-text-color" type="color" value="#3a292b"></label></div>
+        <label>Text size<div class="format-number"><input id="format-font-size" type="number" min="10" max="24" value="13"><span>px</span></div></label>
+        <div class="format-button-row" role="group" aria-label="Text emphasis">
+          <button id="format-bold-btn" aria-pressed="false" title="Bold"><i class="ph ph-text-b"></i><span>Bold</span></button>
+          <button id="format-italic-btn" aria-pressed="false" title="Italic"><i class="ph ph-text-italic"></i><span>Italic</span></button>
+        </div>
+        <label>Alignment<select id="format-align"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>
+        <p class="format-help">Formatting applies to every selected topic. New child topics inherit their parent’s topic and text colors.</p>
+        <section class="connector-format" aria-labelledby="connector-heading">
+          <p class="tool-label">Map style</p><h3 id="connector-heading">Connections</h3>
+          <div class="connector-style-grid" role="group" aria-label="Connector path">
+            <button type="button" data-connector-style="smart" aria-pressed="true"><span class="connector-preview preview-smart"></span><span>Smart</span></button>
+            <button type="button" data-connector-style="straight" aria-pressed="false"><span class="connector-preview preview-straight"></span><span>Straight</span></button>
+            <button type="button" data-connector-style="curved" aria-pressed="false"><span class="connector-preview preview-curved"></span><span>Curved</span></button>
+            <button type="button" data-connector-style="elbow" aria-pressed="false"><span class="connector-preview preview-elbow"></span><span>Elbow 90 deg</span></button>
+          </div>
+          <div class="connector-options-row">
+            <label>Line end<select id="connector-end"><option value="none">None</option><option value="arrow">Arrow</option></select></label>
+            <label>Thickness<select id="connector-width"><option value="thin">Thin</option><option value="regular">Regular</option><option value="bold">Bold</option></select></label>
+          </div>
+          <label>Color<select id="connector-color-mode"><option value="branch">Follow branch</option><option value="custom">Custom</option></select></label>
+          <label id="connector-custom-color-row" class="connector-custom-color hidden">Custom connector color<input id="connector-color" type="color" value="#c2878d"></label>
+          <button id="connector-reset-btn" type="button" class="connector-reset"><i class="ph ph-arrow-counter-clockwise"></i> Reset to layout default</button>
+          <p id="connector-smart-hint" class="connector-hint">Smart uses the connector style recommended for the current layout.</p>
+        </section>
+      </aside>
     </section>
     <div id="editor-status" class="sr-only" role="status" aria-live="polite"></div>
   </main>
@@ -157,6 +211,15 @@
       <div class="tool-rule"></div><h3>People with access</h3><div id="member-list" class="member-list"></div>
     </div>
   </dialog>
+  <dialog id="paste-outline-dialog">
+    <form method="dialog" id="paste-outline-form" class="dialog-card">
+      <button class="dialog-close" value="cancel" aria-label="Close"><i class="ph ph-x"></i></button>
+      <p class="eyebrow">Fast authoring</p><h2>Paste an outline</h2>
+      <p class="muted">Each non-empty line becomes a topic. Use spaces or tabs to create child levels below “<strong id="paste-parent-name"></strong>”.</p>
+      <label>Indented outline<textarea name="outline" required rows="9" placeholder="Research&#10;  Customer interviews&#10;  Competitor review&#10;Decide"></textarea></label>
+      <div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary">Add topics</button></div>
+    </form>
+  </dialog>
   <dialog id="shortcuts-dialog">
     <div class="dialog-card shortcuts-card">
       <button id="shortcuts-close" class="dialog-close" aria-label="Close"><i class="ph ph-x"></i></button>
@@ -165,7 +228,11 @@
         <div><dt><kbd>Tab</kbd></dt><dd>Add child topic</dd></div><div><dt><kbd>Enter</kbd></dt><dd>Add sibling topic</dd></div>
         <div><dt><kbd>F2</kbd></dt><dd>Edit selected topic</dd></div><div><dt><kbd>Shift</kbd> + <kbd>Enter</kbd></dt><dd>Line break while editing</dd></div>
         <div><dt><kbd>Arrow keys</kbd></dt><dd>Navigate topics or table rows</dd></div><div><dt><kbd>Space</kbd></dt><dd>Collapse or expand branch</dd></div>
-        <div><dt><kbd>Ctrl</kbd> + <kbd>Z</kbd></dt><dd>Undo</dd></div><div><dt><kbd>Delete</kbd></dt><dd>Delete selected branch</dd></div>
+        <div><dt><kbd>Ctrl</kbd> + <kbd>Click</kbd></dt><dd>Select multiple topics</dd></div><div><dt><kbd>Shift</kbd> + <kbd>Drag</kbd></dt><dd>Select topics in an area</dd></div>
+        <div><dt><kbd>V</kbd></dt><dd>Select tool; drag an area to multi-select</dd></div><div><dt><kbd>H</kbd></dt><dd>Pan tool; drag the canvas</dd></div>
+        <div><dt><kbd>Ctrl</kbd> + <kbd>C/X/V/D</kbd></dt><dd>Copy, cut, paste, or duplicate</dd></div><div><dt><kbd>Shift</kbd> + <kbd>Tab</kbd></dt><dd>Promote one level</dd></div>
+        <div><dt><kbd>Alt</kbd> + <kbd>↑/↓</kbd></dt><dd>Reorder among siblings</dd></div><div><dt><kbd>Ctrl</kbd> + <kbd>A</kbd></dt><dd>Select visible topics</dd></div>
+        <div><dt><kbd>Ctrl</kbd> + <kbd>Z</kbd></dt><dd>Undo</dd></div><div><dt><kbd>Delete</kbd></dt><dd>Delete selected branches</dd></div>
       </dl>
     </div>
   </dialog>

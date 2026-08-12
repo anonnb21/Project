@@ -28,6 +28,24 @@ Open `http://localhost:3000`. Local data is stored under `data/` and is ignored 
 
 A map starts private. Its owner may add an existing account as an editor or viewer. Every accepted edit increments the map version and stores a revision. If two sessions save from the same version, the second receives the latest version instead of silently overwriting it.
 
+## Mind-map editor
+
+- Drag a shape from the palette to create a topic, or drag an existing branch to reparent or reorder it.
+- Double-click a topic or press `F2` to edit it in place. Topic boxes wrap and resize around multiline text.
+- Switch between the visual canvas and the synchronized relationship table. Viewers can navigate and expand branches without exposing edit controls.
+- Select multiple topics with `Ctrl/Cmd+Click`, `Shift+Drag`, or Select branch, then apply bulk shape, copy, duplicate, or delete actions.
+- Paste an indented outline to create a complete hierarchy in one undoable action; copy, cut, paste, duplicate, promote, and sibling-reorder shortcuts are supported.
+- Switch between Pan (`H`) and Select (`V`) canvas tools. In Select mode, dragging across the canvas selects every intersecting topic.
+- Use the right Format sidebar to change shape, topic/text colors, text size, emphasis, and alignment. Newly created child topics inherit their parent colors.
+- Switch the same hierarchy between Logic Tree, Spider Diagram, Top-down Tree, and Org Chart layouts. Legacy radial maps open automatically as Spider Diagrams.
+- Customize map connectors with Smart, Straight, Curved, or Elbow 90-degree paths, optional arrowheads, three thicknesses, and branch-following or custom colors.
+- Use `Tab` for a child, `Enter` for a sibling, arrow keys to navigate, and `Delete` to remove a branch.
+- Undo and redo with `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z`. Fit-map and fit-selection controls keep large maps manageable.
+
+Documents are normalized to schema version 5 with per-topic content, semantic metadata, visual formatting, document layout, and connector settings. Legacy trees and ordinary OPML remain accepted; IRIS writes supported fields as optional OPML outline attributes.
+
+For implementation decisions, verification status, and recommended follow-up work, see [HANDOFF.md](HANDOFF.md).
+
 ## Staging deployment on a VPS
 
 This repository does not contain VPS addresses or credentials. Use a non-root deployment user and keep staging separate from production.
