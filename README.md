@@ -1,5 +1,9 @@
 # Portable Agent Workspace
 
+## Prototype application
+
+IRIS (**Integrated Red Ant Colony Information System**), the collaborative mind-mapping prototype, lives in [`apps/iris`](apps/iris/README.md). It is intentionally isolated from the reusable agent instructions in this repository.
+
 Paket ini menyimpan instruksi agent yang dapat dipakai ulang di ChatGPT Project/Workspace, Codex, dan agent lain tanpa menyimpan credential.
 
 ## Pemakaian cepat di ChatGPT

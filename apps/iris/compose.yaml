@@ -1,0 +1,29 @@
+services:
+  iris:
+    image: ${IRIS_IMAGE:?Set IRIS_IMAGE to an immutable image tag or digest}
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATA_DIR: /app/data
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET outside Git}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-false}
+      TRUST_PROXY: "1"
+    volumes:
+      - iris-data:/app/data
+    ports:
+      - "127.0.0.1:${IRIS_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  iris-data:
